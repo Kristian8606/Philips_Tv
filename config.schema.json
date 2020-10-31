@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "Philips_Tv",
   "pluginType": "platform",
   "singular": true,
   "schema": {
