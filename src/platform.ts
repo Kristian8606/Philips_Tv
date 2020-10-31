@@ -59,10 +59,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
         exampleUniqueId: 'ABCD',
         exampleDisplayName: 'Bedroom',
       },
-      {
-        exampleUniqueId: 'EFGH',
-        exampleDisplayName: 'Kitchen',
-      },
+      
     ];
 
     // loop over the discovered devices and register each one if it has not already been registered
@@ -114,7 +111,8 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
         new ExamplePlatformAccessory(this, accessory);
 
         // link the accessory to your platform
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        // this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
       }
     }
   }
