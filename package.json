@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "displayName": "Philips_Tv",
   "name": "homebridge-philips_tv",
   "version": "1.0.1",
