@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kristian8606/Philips_Tv.git"
+    "url": "git+https://github.com/Kristian8606/Philips_Tv.git"
   },
   "bugs": {
     "url": "https://github.com/Kristian8606/Philips_Tv/issues"
@@ -40,5 +40,7 @@
     "rimraf": "^3.0.2",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
-  }
+  },
+  "homepage": "https://github.com/Kristian8606/Philips_Tv#readme",
+  "author": "Kristian Dimitrov"
 }
