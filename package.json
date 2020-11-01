@@ -1,6 +1,6 @@
 {
   "private": false,
-  "displayName": "Philips_Tv",
+  "displayName": "Philips_Remote_Tv",
   "name": "homebridge-philips_remote_tv",
   "version": "1.0.1",
   "description": "A short description about what your plugin does.",

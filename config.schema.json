@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "Philips_Tv",
+  "pluginAlias": "Philips_Remote_Tv",
   "pluginType": "platform",
   "singular": true,
   "schema": {
