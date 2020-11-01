@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable max-len */
 import { Service, PlatformAccessory, CharacteristicValue, CharacteristicSetCallback, CharacteristicGetCallback } from 'homebridge';
 
@@ -10,7 +12,7 @@ import { ExampleHomebridgePlatform } from './platform';
  */
 export class ExamplePlatformAccessory {
   private tvService!: Service;
-
+  
   /**
    * These are just used to create a working example
    * You should implement your own code to track the state of your accessory
@@ -20,11 +22,13 @@ export class ExamplePlatformAccessory {
     Brightness: 100,
   };
 
+  axios = require('axios');
   constructor(
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
+    
   ) {
-
+     
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
@@ -93,26 +97,32 @@ export class ExamplePlatformAccessory {
           }
           case this.platform.Characteristic.RemoteKey.ARROW_UP: {
             this.platform.log.info('set Remote Key Pressed: ARROW_UP');
+            this.http('CursorUp');
             break;
           }
           case this.platform.Characteristic.RemoteKey.ARROW_DOWN: {
             this.platform.log.info('set Remote Key Pressed: ARROW_DOWN');
+            this.http('CursorDown');
             break;
           }
           case this.platform.Characteristic.RemoteKey.ARROW_LEFT: {
             this.platform.log.info('set Remote Key Pressed: ARROW_LEFT');
+            this.http('CursorLeft');
             break;
           }
           case this.platform.Characteristic.RemoteKey.ARROW_RIGHT: {
             this.platform.log.info('set Remote Key Pressed: ARROW_RIGHT');
+            this.http('CursorRight');
             break;
           }
           case this.platform.Characteristic.RemoteKey.SELECT: {
             this.platform.log.info('set Remote Key Pressed: SELECT');
+            this.http('Confirm');
             break;
           }
           case this.platform.Characteristic.RemoteKey.BACK: {
             this.platform.log.info('set Remote Key Pressed: BACK');
+            this.http('Back');
             break;
           }
           case this.platform.Characteristic.RemoteKey.EXIT: {
@@ -121,10 +131,12 @@ export class ExamplePlatformAccessory {
           }
           case this.platform.Characteristic.RemoteKey.PLAY_PAUSE: {
             this.platform.log.info('set Remote Key Pressed: PLAY_PAUSE');
+            this.http('Home');
             break;
           }
           case this.platform.Characteristic.RemoteKey.INFORMATION: {
             this.platform.log.info('set Remote Key Pressed: INFORMATION');
+            this.http('Info');
             break;
           }
         }
@@ -147,6 +159,12 @@ export class ExamplePlatformAccessory {
     speakerService.getCharacteristic(this.platform.Characteristic.VolumeSelector)
       .on('set', (newValue, callback) => {
         this.platform.log.info('set VolumeSelector => setNewValue: ' + newValue);
+        if(!newValue){
+          this.http('VolumeUp');
+        }else{
+          this.http('VolumeDown');
+        }
+        
         callback(null);
       });
 
@@ -185,6 +203,8 @@ export class ExamplePlatformAccessory {
     this.tvService.addLinkedService(netflixInputService); // link to tv service
 
 
+    
+    
     /**
      * Publish as external accessory
      * Only one TV can exist per bridge, to bypass this limitation, you should
@@ -193,6 +213,30 @@ export class ExamplePlatformAccessory {
 
     //this.platform.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
   }
+
+  http(valData){
+    
+    const data = JSON.stringify({'key': ''+valData+'' });
+
+    const config = {
+      method: 'post',
+      url: 'http://192.168.0.107:1925/6/input/key',
+      headers: { 
+        'Content-Type': 'text/plain',
+      },
+      data : data,
+    };
+
+    this.axios(config)
+      .then((response) => {
+        const val = JSON.stringify(response.data);
+        console.log(JSON.parse(val));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  
 }
   
 
