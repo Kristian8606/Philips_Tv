@@ -27,7 +27,19 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     const fs = require('fs');
     const rawdata = fs.readFileSync(configPath);
     const student = JSON.parse(rawdata);
-    console.log(student);
+    const obj = student.platforms;
+    for (const key in obj) {
+      console.log(obj[key].name +' '+key);
+      for (const keys in obj[key]) {
+        console.log(keys +' - ');
+        for(const k in obj[keys]){
+          console.log(k);
+        }
+      }
+
+    }
+   
+    
     
 
     this.log.debug('Finished initializing platform:', this.config.name);
