@@ -6,4 +6,4 @@ export const PLATFORM_NAME = 'Philips_Tv';
 /**
  * This must match the name of your plugin as defined the package.json
  */
-export const PLUGIN_NAME = 'homebridge-philips_tv';
+export const PLUGIN_NAME = 'homebridge-philips_remote_tv';
