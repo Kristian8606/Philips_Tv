@@ -23,7 +23,7 @@ export class ExamplePlatformAccessory {
   };
 
   axios = require('axios');
-  cmd = 'DC-FE-07-E0-D7-A3';
+  cmd = 'D8:13:99:77:C5:B2';
   constructor(
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
