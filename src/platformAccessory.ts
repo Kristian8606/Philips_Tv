@@ -23,6 +23,7 @@ export class ExamplePlatformAccessory {
   };
 
   axios = require('axios');
+  cmd = 'DC-FE-07-E0-D7-A3';
   constructor(
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
@@ -34,6 +35,7 @@ export class ExamplePlatformAccessory {
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
       .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+
 
    
 
@@ -47,7 +49,7 @@ export class ExamplePlatformAccessory {
 
 
     // set the tv name
-    this.tvService.setCharacteristic(this.platform.Characteristic.ConfiguredName, 'TVs');
+    this.tvService.setCharacteristic(this.platform.Characteristic.ConfiguredName, 'TV');
     this.tvService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
 
 
@@ -58,6 +60,11 @@ export class ExamplePlatformAccessory {
     this.tvService.getCharacteristic(this.platform.Characteristic.Active)
       .on('set', (newValue, callback) => {
         this.platform.log.info('set Active => setNewValue: ' + newValue);
+        if(newValue){
+          this.wakeOnLan(this.cmd);
+        }else{
+          console.log('Standby');
+        }
         this.tvService.updateCharacteristic(this.platform.Characteristic.Active, 1);
         callback(null);
       });
@@ -70,8 +77,19 @@ export class ExamplePlatformAccessory {
 
         // the value will be the value you set for the Identifier Characteristic
         // on the Input Source service that was selected - see input sources below.
-
+        
         this.platform.log.info('set Active Identifier => setNewValue: ' + newValue);
+        if(newValue === 1){
+          this.http('Home');
+        }else if (newValue === 2){
+          this.http('Source');
+        }else if (newValue === 3){
+          this.http('Mute');
+        }else if (newValue === 4){
+          this.http('AmbilightOnOff');
+        }
+       
+
         callback(null);
       });
 
@@ -176,49 +194,44 @@ export class ExamplePlatformAccessory {
      */
 
     // HDMI 1 Input Source
-    const hdmi1InputService = this.accessory.addService(this.platform.Service.InputSource, 'hdmi1', 'HDMI 1');
+    const hdmi1InputService = this.accessory.addService(this.platform.Service.InputSource, 'menu', 'MENU');
+
     hdmi1InputService
       .setCharacteristic(this.platform.Characteristic.Identifier, 1)
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'HDMI 1')
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'MENU')
       .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
       .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.HDMI);
     this.tvService.addLinkedService(hdmi1InputService); // link to tv service
 
     // HDMI 2 Input Source
-    const hdmi2InputService = this.accessory.addService(this.platform.Service.InputSource, 'hdmi2', 'HDMI 2');
+    const hdmi2InputService = this.accessory.addService(this.platform.Service.InputSource, 'source', 'Source');
     hdmi2InputService
       .setCharacteristic(this.platform.Characteristic.Identifier, 2)
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'HDMI 2')
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Source')
       .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
       .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.HDMI);
     this.tvService.addLinkedService(hdmi2InputService); // link to tv service
 
     // Netflix Input Source
-    const netflixInputService = this.accessory.addService(this.platform.Service.InputSource, 'netflix', 'Netflix');
+    const netflixInputService = this.accessory.addService(this.platform.Service.InputSource, 'mute', 'Mute');
     netflixInputService
       .setCharacteristic(this.platform.Characteristic.Identifier, 3)
-      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Netflix')
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'Mute')
       .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
       .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.HDMI);
     this.tvService.addLinkedService(netflixInputService); // link to tv service
 
+    const AmbilightInputService = this.accessory.addService(this.platform.Service.InputSource, 'ambilightonoff', 'AmbilightOnOff');
 
-    const wol = require('wake_on_lan');
+    AmbilightInputService
+      .setCharacteristic(this.platform.Characteristic.Identifier, 4)
+      .setCharacteristic(this.platform.Characteristic.ConfiguredName, 'AmbilightOnOff')
+      .setCharacteristic(this.platform.Characteristic.IsConfigured, this.platform.Characteristic.IsConfigured.CONFIGURED)
+      .setCharacteristic(this.platform.Characteristic.InputSourceType, this.platform.Characteristic.InputSourceType.HDMI);
+    this.tvService.addLinkedService(AmbilightInputService); // link to tv service
 
-    wol.wake('DC-FE-07-E0-D7-A3');
+    
 
-    wol.wake('DC-FE-07-E0-D7-A3', (error) => {
-      if (error) {
-        // handle error
-        console.log(error);
-      } else {
-        // done sending packets
-        console.log('Send WOL');
-      }
-    });
-
-    const magic_packet = wol.createMagicPacket('DC-FE-07-E0-D7-A3');
-    console.log(magic_packet);
     
     /**
      * Publish as external accessory
@@ -232,7 +245,7 @@ export class ExamplePlatformAccessory {
   http(valData){
     
     const data = JSON.stringify({'key': ''+valData+'' });
-
+    console.log(valData);
     const config = {
       method: 'post',
       url: 'http://192.168.0.107:1925/6/input/key',
@@ -250,6 +263,22 @@ export class ExamplePlatformAccessory {
       .catch((error) => {
         console.log(error);
       });
+  }
+
+  wakeOnLan(cmd){
+    const wol = require('wake_on_lan');
+
+    wol.wake(''+cmd+'');
+
+    wol.wake(''+cmd+'', (error) => {
+      if (error) {
+        // handle error
+        console.log(error);
+      } else {
+        // done sending packets
+        console.log('Send WOL');
+      }
+    });
   }
   
 }
