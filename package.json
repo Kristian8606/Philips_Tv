@@ -27,7 +27,8 @@
     "homebridge-plugin"
   ],
   "dependencies": {
-    "axios": "^0.21.0"
+    "axios": "^0.21.0",
+    "wake_on_lan": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^14.14.2",

@@ -203,7 +203,22 @@ export class ExamplePlatformAccessory {
     this.tvService.addLinkedService(netflixInputService); // link to tv service
 
 
-    
+    const wol = require('wake_on_lan');
+
+    wol.wake('DC-FE-07-E0-D7-A3');
+
+    wol.wake('DC-FE-07-E0-D7-A3', (error) => {
+      if (error) {
+        // handle error
+        console.log(error);
+      } else {
+        // done sending packets
+        console.log('Send WOL');
+      }
+    });
+
+    const magic_packet = wol.createMagicPacket('DC-FE-07-E0-D7-A3');
+    console.log(magic_packet);
     
     /**
      * Publish as external accessory
