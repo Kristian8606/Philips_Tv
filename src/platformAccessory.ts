@@ -63,7 +63,7 @@ export class ExamplePlatformAccessory {
         if(newValue){
           this.wakeOnLan(this.cmd);
         }else{
-          console.log('Standby');
+          this.http('Standby');
         }
         this.tvService.updateCharacteristic(this.platform.Characteristic.Active, 1);
         callback(null);
