@@ -10,34 +10,32 @@ import { ExampleHomebridgePlatform } from './platform';
  * An instance of this class is created for each accessory your platform registers
  * Each accessory may expose multiple services of different service types.
  */
-export class ExamplePlatformAccessory {
+export class Philips_Remote_Tv {
   private tvService!: Service;
   
-  /**
-   * These are just used to create a working example
-   * You should implement your own code to track the state of your accessory
-   */
-  private exampleStates = {
-    On: false,
-    Brightness: 100,
-  };
-
   axios = require('axios');
-  cmd = 'D8:13:99:77:C5:B2';
+  cmd;
+  ipAdress;
+  
   constructor(
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
     
   ) {
      
+    
+    
+    
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
       .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, accessory.context.device.mac_adress);
 
 
-   
+    this.cmd = accessory.context.device.mac_adress;
+    this.ipAdress = accessory.context.device.ip_adress;
+    console.log(accessory.context.device.ip_adress);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
@@ -49,8 +47,8 @@ export class ExamplePlatformAccessory {
 
 
     // set the tv name
-    this.tvService.setCharacteristic(this.platform.Characteristic.ConfiguredName, 'TV');
-    this.tvService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
+    this.tvService.setCharacteristic(this.platform.Characteristic.ConfiguredName, accessory.context.device.tv);
+    this.tvService.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.tv);
 
 
     // set sleep discovery characteristic
@@ -248,7 +246,7 @@ export class ExamplePlatformAccessory {
     console.log(valData);
     const config = {
       method: 'post',
-      url: 'http://192.168.0.107:1925/6/input/key',
+      url: 'http://'+this.ipAdress+':1925/6/input/key',
       headers: { 
         'Content-Type': 'text/plain',
       },
@@ -265,18 +263,19 @@ export class ExamplePlatformAccessory {
       });
   }
 
-  wakeOnLan(cmd){
+  wakeOnLan(command){
     const wol = require('wake_on_lan');
+    
 
-    wol.wake(''+cmd+'');
+    wol.wake(''+command+'');
 
-    wol.wake(''+cmd+'', (error) => {
+    wol.wake(''+command+'', (error) => {
       if (error) {
         // handle error
         console.log(error);
       } else {
         // done sending packets
-        console.log('Send WOL');
+        console.log('Send WOL '+ command);
       }
     });
   }
