@@ -41,7 +41,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
             // console.log(arr);
             for(const k of arr){
               const object = JSON.parse(JSON.stringify(k));
-              console.log(object);
+              console.log(arr);
               this.list.push(new this.device(object.tv, object.ip_adress, object.mac_adress));
               
             }
