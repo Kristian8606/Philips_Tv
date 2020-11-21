@@ -35,18 +35,23 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       if(Object.prototype.hasOwnProperty.call(obj[k], 'platform')){
         const val = obj[k];
         if(Object.values(val).includes( 'Philips_Remote_Tv')){
-
-          if(Object.prototype.hasOwnProperty.call(val, 'devices')){
-            const arr: unknown[] = val.devices;
-            // console.log(arr);
+          console.log(val);
+          if(Object.prototype.hasOwnProperty.call(val, 'tvRemote')){
+            // console.log(val[]);
+            const arr: unknown[] = val.tvRemote;
+            
             for(const k of arr){
+              //console.log(k.name);
               const object = JSON.parse(JSON.stringify(k));
-              console.log(arr);
-              this.list.push(new this.device(object.tv, object.ip_adress, object.mac_adress));
+              console.log(object.name);
+              console.log(object.remoteConfig.ipAddress);
+              console.log(object.remoteConfig.macAddress);
+              this.list.push(new this.device(object.name, object.remoteConfig.ipAddress, object.remoteConfig.macAddress));
               
             }
    
           }
+          
         }
       }
       //console.log(this.list);
