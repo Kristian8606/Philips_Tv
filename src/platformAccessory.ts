@@ -16,6 +16,7 @@ export class Philips_Remote_Tv {
   axios = require('axios');
   cmd;
   ipAdress;
+  state = false;
   
   constructor(
     private readonly platform: ExampleHomebridgePlatform,
@@ -35,7 +36,7 @@ export class Philips_Remote_Tv {
 
     this.cmd = accessory.context.device.mac_adress;
     this.ipAdress = accessory.context.device.ip_adress;
-    console.log(accessory.context.device.ip_adress);
+    //console.log(accessory.context.device.ip_adress);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
@@ -60,8 +61,10 @@ export class Philips_Remote_Tv {
         this.platform.log.info('set Active => setNewValue: ' + newValue);
         if(newValue){
           this.wakeOnLan(this.cmd);
+          this.state = true;
         }else{
           this.http('Standby');
+          this.state = false;
         }
         this.tvService.updateCharacteristic(this.platform.Characteristic.Active, 1);
         callback(null);
@@ -231,19 +234,20 @@ export class Philips_Remote_Tv {
     
 
     
-    /**
-     * Publish as external accessory
-     * Only one TV can exist per bridge, to bypass this limitation, you should
-     * publish your TV as an external accessory.
-     */
+    setInterval(() => {
+      this.ping(this.ipAdress);
+      // push the new value to HomeKit
+      // motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
 
-    //this.platform.api.publishExternalAccessories(PLUGIN_NAME, [this.accessory]);
+      //this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
+    }, 5000);
+
   }
 
   http(valData){
     
     const data = JSON.stringify({'key': ''+valData+'' });
-    console.log(valData);
+    this.platform.log.debug(valData);
     const config = {
       method: 'post',
       url: 'http://'+this.ipAdress+':1925/6/input/key',
@@ -256,10 +260,10 @@ export class Philips_Remote_Tv {
     this.axios(config)
       .then((response) => {
         const val = JSON.stringify(response.data);
-        console.log(JSON.parse(val));
+        this.platform.log.debug(JSON.parse(val));
       })
       .catch((error) => {
-        console.log(error);
+        this.platform.log.debug(error);
       });
   }
 
@@ -272,12 +276,33 @@ export class Philips_Remote_Tv {
     wol.wake(''+command+'', (error) => {
       if (error) {
         // handle error
-        console.log(error);
+        // console.log(error);
       } else {
         // done sending packets
-        console.log('Send WOL '+ command);
+        // console.log('Send WOL '+ command);
       }
     });
+  }
+
+  ping(ip_adr){
+    const ping = require('ping');
+ 
+    const hosts = [''+ip_adr+''];
+    hosts.forEach((host)=> {
+      ping.sys.probe(host, (isAlive)=> {
+        //const msg = isAlive ? 'host ' + host + ' is alive' : 'host ' + host + ' is dead';
+        // console.log(msg);
+        if(isAlive !== this.state){
+          this.state = isAlive;
+          this.tvService.updateCharacteristic(this.platform.Characteristic.Active, isAlive);
+          // console.log(isAlive);
+          // return isAlive;
+        }
+        
+        // return false;
+      });
+    });
+
   }
   
 }

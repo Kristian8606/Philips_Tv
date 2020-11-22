@@ -5,5 +5,5 @@
 
 </p>
 
-Working beta!
+Working beta! A status check has been added
 ....Under construction
